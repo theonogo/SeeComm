@@ -1,11 +1,8 @@
-from django.shortcuts import render
 from django.http import JsonResponse
-from django.contrib.auth import login
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from allauth.socialaccount.models import SocialAccount
-import json
 
 @login_required
 def user_info(request):
@@ -30,6 +27,7 @@ def user_info(request):
         'github_avatar': github_data.get('avatar_url', ''),
     })
 
+@ensure_csrf_cookie
 def auth_status(request):
     """Check if user is authenticated"""
     if request.user.is_authenticated:

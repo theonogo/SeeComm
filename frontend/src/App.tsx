@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 import api from './api'
+import LogoutButton from './components/LogoutButton'
 
 function App() {
   const [message, setMessage] = useState('')
@@ -16,6 +17,7 @@ function App() {
     <>
       <div>
         <h1>{message}</h1>
+        <LogoutButton />
       </div>
     </>
   )
