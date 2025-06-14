@@ -4,6 +4,11 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .models import Tutorial
 from .serializers import TutorialSerializer
+import json
+from pydantic import BaseModel, Field, ValidationError
+from typing import List
+from datetime import datetime
+import re
 
 
 class HelloWorldView(APIView):
@@ -17,16 +22,76 @@ class TutorialListCreateView(APIView):
         tutorials = Tutorial.objects.filter(user=request.user)
         serializer = TutorialSerializer(tutorials, many=True)
         return Response(serializer.data)
+    
+
+    def processPhrases(self, phrases):
+        ### Process phrases to merge them together
+        processed_phrases = []
+        curr_phrase = None
+
+        for phrase in phrases:
+            if curr_phrase is None:
+                # First phrase
+                curr_phrase = phrase.copy()
+            elif curr_phrase['speaker'] == phrase['speaker']:
+                # Merge phrases if they are from the same speaker
+                curr_phrase['duration_in_ticks'] += phrase['duration_in_ticks']
+                curr_phrase['display'] += ' ' + phrase['display']
+            else:
+                 # Speaker changed, save curr phrase and start new one
+                processed_phrases.append(curr_phrase)
+                curr_phrase = phrase.copy()
+
+        # add last phrase
+        processed_phrases.append(curr_phrase)
+
+        ### Clarify phrase start/end times
+        for phrase in processed_phrases:
+            phrase['start_seconds'] = int(phrase['offset_milliseconds']) / 1000
+            phrase['end_seconds'] = phrase['start_seconds'] + int(phrase['duration_in_ticks']) / 10000000
+
+        ### Remove unnecessary fields
+        to_remove = ['offset_milliseconds', 'duration_in_ticks', 'confidence', 'locale']
+        for phrase in processed_phrases:
+            for field in to_remove:
+                del phrase[field]
+        
+        return processed_phrases
 
     def post(self, request):
-        # Temp post for testing, TODO change this
-        data = request.data.copy()
-        serializer = TutorialSerializer(data=data)
+        uploaded_file = request.FILES.get('file')
+        video_url = request.POST.get('video_url').strip()
 
-        if serializer.is_valid():
-            serializer.save(user=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # verify file and video URL
+        validity = TutorialValidateView.verifyUpload(TutorialValidateView, file=uploaded_file, video_url=video_url)
+        if not validity['result']:
+            return Response({'detail': validity['error']}, status=status.HTTP_400_BAD_REQUEST)
+        
+        json_data = validity['file_data']
+
+        processed_phrases = self.processPhrases(json_data['phrases'])
+
+
+        
+        
+        #
+        # TODO: big old llm integration here
+        #
+
+
+
+        # Create a new tutorial object and save to db
+        tutorial = Tutorial.objects.create(
+            user=request.user,
+            transcript= json_data,
+            video_url=video_url,
+            title='',  # from llm
+            body={},  # from llm
+        )
+
+        serializer = TutorialSerializer(tutorial)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 class TutorialDetailView(APIView):
     permission_classes = [IsAuthenticated]
@@ -69,18 +134,57 @@ class TutorialDetailView(APIView):
             return Response({'detail': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
         tutorial.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
+class Phrase(BaseModel):
+    offset_milliseconds: int
+    duration_in_ticks: float
+    display: str
+    speaker: int
+    locale: str
+    confidence: float
+
+class Transcript(BaseModel):
+    timestamp: datetime
+    duration_in_ticks: int
+    phrases: List[Phrase]
+
 class TutorialValidateView(APIView):
     permission_classes = [IsAuthenticated]
+
+    def verifyUpload(self, file, video_url):
+        # Check the file and video url have been sent
+        if not file:
+            return {'result': False, 'error': 'Missing file'}
+        if not video_url:
+            return {'result': False, 'error': 'Missing video url'}
+
+        try:
+            # Check the json file format
+            print('ok')
+            file_data = file.read().decode('utf-8')
+            json_data = json.loads(file_data)
+
+            # Validate the json file content
+            parsed = Transcript.model_validate(json_data)
+            if parsed.phrases is None or len(parsed.phrases) == 0:
+                return {'result': False, 'error': 'No phrases found in the JSON file'}
+        except Exception as e:
+            print(e)
+            return {'result': False, 'error': 'Invalid JSON file'}
+        
+        # Check the video URL format regex
+        pattern = re.compile( r'^https:\/\/drive\.google\.com\/file\/d\/\S+\/view\?usp=drive_link$')
+        if not pattern.match(video_url):
+            return {'result': False, 'error': 'Invalid video URL format'}
+
+        return {'result': True, 'error': '', 'file_data': json_data}
+
     def post(self, request):
-        data = request.data
+        uploaded_file = request.FILES.get('file')
+        video_url = request.POST.get('video_url').strip()
 
-        # Temp validation, TODO change this
-        if len(data['title']) < 5:
-            return Response({'result': 'false', 'errors': {'title': 'Title must be at least 5 characters'}}, status=status.HTTP_400_BAD_REQUEST)
-
-        if data['body'] == '':
-            return Response({'result': 'false', 'errors': {'body': 'Body must contain a non-empty list'}}, status=status.HTTP_400_BAD_REQUEST)
-
+        validity = self.verifyUpload(uploaded_file, video_url)
+        if not validity['result']:
+            return Response({'detail': validity['error']}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'result': 'true'}, status=status.HTTP_200_OK)
