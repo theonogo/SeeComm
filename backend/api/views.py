@@ -4,12 +4,27 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .models import Tutorial
 from .serializers import TutorialSerializer
+from google import genai
+from google.genai import types
 import json
-from pydantic import BaseModel, Field, ValidationError
-from typing import List
+from pydantic import BaseModel, ValidationError
+from typing import List, Optional
 from datetime import datetime
 import re
+import os
 
+class ClipTimestamps(BaseModel):
+    start: int
+    end: int
+
+class Step(BaseModel):
+    title: str
+    body: str
+    clip: Optional[ClipTimestamps]
+
+class TutorialArticle(BaseModel):
+    title: str
+    steps: List[Step]
 
 class HelloWorldView(APIView):
     def get(self, request):
@@ -57,6 +72,34 @@ class TutorialListCreateView(APIView):
                 del phrase[field]
         
         return processed_phrases
+    
+
+    def generateTutorial(self, phrases):
+        client = genai.Client(api_key=os.environ.get('GENAI_API_KEY'))
+
+        model_name=os.environ.get('GEMINI_MODEL')
+
+        system_instruction = """
+        This is a transcript from a support call. 
+        Extract relevant steps from the transcript and generate a clear step-by-step tutorial summarizing how the issue was resolved or handled. 
+        Include steps only when meaningful (avoid trivial dialogue). 
+        If useful for a step, include a start and end second where a video snippet would help, do this sparingly (don't include it in the step body, just put it in clip json).
+        Return the tutorial in JSON format
+        """
+
+        generation_config = types.GenerateContentConfig(
+            system_instruction=system_instruction,
+            response_mime_type="application/json",
+            response_schema=TutorialArticle,
+        )
+
+        response = client.models.generate_content(
+            model=model_name,
+            contents=json.dumps(phrases, indent=2),
+            config=generation_config
+        )
+
+        return response
 
     def post(self, request):
         uploaded_file = request.FILES.get('file')
@@ -71,23 +114,32 @@ class TutorialListCreateView(APIView):
 
         processed_phrases = self.processPhrases(json_data['phrases'])
 
-
+        # Generate the tutorial using the LLM
+        try:
+            response = self.generateTutorial(processed_phrases)
+            if response.prompt_feedback and response.prompt_feedback.block_reason:
+                return Response({'detail': 'Error generating tutorial: ' + response.prompt_feedback.block_reason}, status=status.HTTP_400_BAD_REQUEST)
+            if response.text is None:
+                return Response({'detail': 'Error generating tutorial'}, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError as e:
+            print(e.errors())
+            return Response({'detail': 'Error generating tutorial: ' + str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-        
-        #
-        # TODO: big old llm integration here
-        #
-
-
+        try:
+            response_content = json.loads(response.text)
+        except json.JSONDecodeError as e:
+            return Response({'detail': 'Error parsing tutorial response: ' + str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         # Create a new tutorial object and save to db
         tutorial = Tutorial.objects.create(
             user=request.user,
             transcript= json_data,
             video_url=video_url,
-            title='',  # from llm
-            body={},  # from llm
+            title=response_content["title"],
+            body=response_content["steps"],
         )
+
+        
 
         serializer = TutorialSerializer(tutorial)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -160,7 +212,6 @@ class TutorialValidateView(APIView):
 
         try:
             # Check the json file format
-            print('ok')
             file_data = file.read().decode('utf-8')
             json_data = json.loads(file_data)
 
