@@ -1,26 +1,27 @@
 import { useEffect, useState } from 'react'
 import api from '../api'
-import LogoutButton from '../components/LogoutButton'
-import UploadForm from '../components/UploadForm'
+import { Separator } from '@/components/ui/separator'
+import TutorialList from '@/components/TutorialList'
 
 export default function Home() {
-  const [message, setMessage] = useState('')
-
+  const [tutorials, setTutorials] = useState<Array<{ id: string, title: string }>>([])
   useEffect(() => {
-    api.get('/hello/')
-      .then((res : { data: { message: string } }) => {
-        setMessage(res.data.message)
+      api.get('/tutorials/')
+      .then((res) => {
+          setTutorials(res.data)
       })
   }, [])
 
+
   return (
-    <>
-      <div>
-        <h1>{message}</h1>
-        <UploadForm />
-        <LogoutButton />
+    <div className='w-[85%] align-center flex flex-col items-center justify-center self-center mx-auto'>
+      <div className='max-w-5xl p-4 mt-10 w-full'>
+        <h1 className='text-5xl font-bold text-balance ml-4 mb-3'>Tutorials</h1>
+        <p className='text-lg opacity-75 ml-5 mb-4'>You currently have {tutorials.length} tutorials.</p>
+        <Separator/>
+        <TutorialList tutorials={tutorials} />
       </div>
-    </>
+    </div>
   )
 }
 

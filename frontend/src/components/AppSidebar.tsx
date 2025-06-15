@@ -1,5 +1,5 @@
 import { Home, Newspaper, ChevronDown, User, Moon, Sun, LogOut } from "lucide-react"
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
  
 import {
   Sidebar,
@@ -35,6 +35,7 @@ export function AppSidebar() {
   const [tutorials, setTutorials] = useState<Array<{ id: string, title: string }>>([])
   const navigate = useNavigate()
   const context = useAuth()
+  
   const { user } = context
 
   const handleLogout = async () => {
@@ -47,7 +48,6 @@ export function AppSidebar() {
   };
 
   useEffect(() => {
-
     api.get('/tutorials/')
       .then((res) => {
         console.log(res)
@@ -91,10 +91,10 @@ export function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href='/'>
+                  <NavLink to='/'>
                     <Home />
                     <span>Home</span>
-                  </a>
+                  </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -108,10 +108,10 @@ export function AppSidebar() {
               {tutorials.map((tutorial) => (
                 <SidebarMenuItem key={tutorial.id}>
                   <SidebarMenuButton asChild>
-                    <Link to={`/tutorials/${tutorial.id}`}>
+                    <NavLink to={`/tutorials/${tutorial.id}`} >
                       <Newspaper />
                       <span>{tutorial.title}</span>
-                    </Link>
+                    </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
