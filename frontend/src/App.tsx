@@ -8,6 +8,7 @@ import { PublicRoute } from './auth/PublicRoute.tsx';
 import Home from './pages/Home.tsx';
 import Layout from './layout.tsx';
 import { ThemeProvider } from "@/components/ThemeProvider.tsx"
+import Tutorial from './pages/Tutorial.tsx';
 
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
 
               <Route element={<Layout />}>
                 <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+                <Route path="/tutorial/:id" element={<ProtectedRoute><Tutorial /></ProtectedRoute>} />
               </Route>
             </Routes>
           </Router>

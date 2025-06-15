@@ -4,7 +4,7 @@ import { Separator } from '@/components/ui/separator'
 import TutorialList from '@/components/TutorialList'
 
 export default function Home() {
-  const [tutorials, setTutorials] = useState<Array<{ id: string, title: string }>>([])
+  const [tutorials, setTutorials] = useState<Array<{ id: string, title: string, created_at: string }>>([])
   useEffect(() => {
       api.get('/tutorials/')
       .then((res) => {

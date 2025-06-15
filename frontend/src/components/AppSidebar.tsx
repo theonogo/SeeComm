@@ -108,7 +108,7 @@ export function AppSidebar() {
               {tutorials.map((tutorial) => (
                 <SidebarMenuItem key={tutorial.id}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={`/tutorials/${tutorial.id}`} >
+                    <NavLink to={`/tutorial/${tutorial.id}`} >
                       <Newspaper />
                       <span>{tutorial.title}</span>
                     </NavLink>

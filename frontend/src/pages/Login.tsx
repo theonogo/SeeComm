@@ -1,20 +1,8 @@
 import LoginButton from '../components/LoginButton'
-import { useEffect, useState } from 'react'
-import api from '../api'
 
 export default function Login() {
-    const [message, setMessage] = useState('')
-    
-      useEffect(() => {
-        api.get('/hello/')
-          .then((res : { data: { message: string } }) => {
-            setMessage(res.data.message)
-          })
-      }, [])
-    
     return (
-      <div>
-        <h1>{message}</h1>
+      <div className="absolute flex-col left-1/2 top-[40%] transform -translate-x-1/2 border border-border bg-popover rounded-lg p-4 shadow-md w-sm h-40 flex justify-center">
         <LoginButton />
       </div>
     )
