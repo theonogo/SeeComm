@@ -7,6 +7,7 @@ import { AuthProvider } from './auth/AuthContext.tsx';
 import { PublicRoute } from './auth/PublicRoute.tsx';
 import Home from './pages/Home.tsx';
 import Layout from './layout.tsx';
+import { ThemeProvider } from "@/components/ThemeProvider.tsx"
 
 
 export default function App() {
@@ -14,15 +15,17 @@ export default function App() {
   return (
     <StrictMode>
       <AuthProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+        <ThemeProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
 
-            <Route element={<Layout />}>
-              <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-            </Route>
-          </Routes>
-        </Router>
+              <Route element={<Layout />}>
+                <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+              </Route>
+            </Routes>
+          </Router>
+        </ThemeProvider>
       </AuthProvider>
   </StrictMode>
   )
