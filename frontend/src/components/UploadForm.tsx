@@ -31,7 +31,7 @@ export default function UploadForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className='center flex flex-col gap-4'>
       <div>
         <label>Video Transcript File (JSON):</label>
         <input

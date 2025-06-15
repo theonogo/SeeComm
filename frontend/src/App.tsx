@@ -1,28 +1,30 @@
-import { useEffect, useState } from 'react'
-import './App.css'
-import api from './api'
-import LogoutButton from './components/LogoutButton'
-import UploadForm from './components/UploadForm'
+import { StrictMode } from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import './index.css'
+import Login from './pages/Login.tsx';
+import { ProtectedRoute } from './auth/ProtectedRoute.tsx';
+import { AuthProvider } from './auth/AuthContext.tsx';
+import { PublicRoute } from './auth/PublicRoute.tsx';
+import Home from './pages/Home.tsx';
+import Layout from './layout.tsx';
 
-function App() {
-  const [message, setMessage] = useState('')
 
-  useEffect(() => {
-    api.get('/hello/')
-      .then((res : { data: { message: string } }) => {
-        setMessage(res.data.message)
-      })
-  }, [])
+export default function App() {
 
   return (
-    <>
-      <div>
-        <h1>{message}</h1>
-        <UploadForm />
-        <LogoutButton />
-      </div>
-    </>
+    <StrictMode>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+
+            <Route element={<Layout />}>
+              <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+            </Route>
+          </Routes>
+        </Router>
+      </AuthProvider>
+  </StrictMode>
   )
 }
 
-export default App
