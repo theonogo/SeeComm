@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { Loader2Icon } from "lucide-react"
 import { AxiosError } from 'axios';
+import { useTutorialsContext } from '@/utils/TutorialsContext';
 
 export default function UploadForm() {
   const [file, setFile] = useState<File | null>(null);
@@ -15,6 +16,7 @@ export default function UploadForm() {
   const [loading, setLoading] = useState<boolean>(false)
 
   const navigate = useNavigate()
+  const { refetch } = useTutorialsContext()
 
   async function handleSubmit(e : React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -38,8 +40,8 @@ export default function UploadForm() {
       });
       setError('')
       setLoading(false);
-
-      navigate(`/tutorial/${response.data.id}`)
+      refetch()
+      navigate(`/tutorial/${response.data.id}/`)
     } catch (error) {
       if(error instanceof AxiosError && error.response?.data?.detail){
         setError(error.response.data.detail)

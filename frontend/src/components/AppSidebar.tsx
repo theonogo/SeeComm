@@ -1,5 +1,7 @@
 import { Home, Newspaper, ChevronDown, User, Moon, Sun, LogOut } from "lucide-react"
 import { NavLink } from 'react-router-dom';
+import { useLocation } from "react-router-dom";
+
  
 import {
   Sidebar,
@@ -22,25 +24,24 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import { useEffect, useState } from 'react'
-import api from '../api'
+import { useEffect } from 'react'
 
 import { useAuth } from '../auth/AuthContext';
 import { useTheme } from "@/components/ThemeProvider"
 import { Toggle } from "@/components/ui/toggle"
 import { useNavigate } from 'react-router-dom';
+import { useTutorialsContext } from "@/utils/TutorialsContext";
   
  
 export function AppSidebar() {
-  const [tutorials, setTutorials] = useState<Array<{ id: string, title: string }>>([])
   const navigate = useNavigate()
-  const context = useAuth()
-  
-  const { user } = context
+  const location = useLocation();
+  const { tutorials, refetch } = useTutorialsContext();
+  const { user, logout } = useAuth()
 
   const handleLogout = async () => {
     try {
-      await context.logout();
+      await logout();
       navigate('/login');
     } catch (error) {
       console.error('Logout failed:', error);
@@ -48,10 +49,7 @@ export function AppSidebar() {
   };
 
   useEffect(() => {
-    api.get('/tutorials/')
-      .then((res) => {
-        setTutorials(res.data)
-      })
+    refetch()
   }, [])
 
 
@@ -88,7 +86,10 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton 
+                  isActive={location.pathname==`/`}
+                  asChild
+                >
                   <NavLink to='/'>
                     <Home />
                     <span>Home</span>
@@ -105,14 +106,29 @@ export function AppSidebar() {
             <SidebarMenu>
               {tutorials.map((tutorial) => (
                 <SidebarMenuItem key={tutorial.id}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={`/tutorial/${tutorial.id}`} >
+                  <SidebarMenuButton 
+                    isActive={location.pathname==`/tutorial/${tutorial.id}/`}
+                    asChild
+                  >
+                    <NavLink 
+                      to={`/tutorial/${tutorial.id}/`}
+                    >
                       <Newspaper />
                       <span>{tutorial.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton  className="text-center justify-center bg-primary/20 hover:bg-primary/60 mt-2" asChild>
+                  <NavLink 
+                    to={`/upload/`}
+                    className="text-center"
+                  >
+                    + Upload New Tutorial
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

@@ -14,12 +14,16 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
+import { useTutorialsContext } from "@/utils/TutorialsContext";
+
 export default function Tutorial() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [tutorial, setTutorial] = useState<Tutorial>()
   const [tempTitle, setTempTitle] = useState<string>('')
   const [editing, setEditing] = useState<boolean>(false)
+  
+  const { refetch } = useTutorialsContext();
 
   useEffect(() => {
       setEditing(false)
@@ -31,7 +35,11 @@ export default function Tutorial() {
 
   function handleDelete() {
     api.delete(`/tutorials/${id}/`)
-    .then( () => navigate('/') )
+    .then(() => {
+      refetch()
+      navigate('/')
+    })
+    
   }
 
   function handleEditStart() {
@@ -56,6 +64,7 @@ export default function Tutorial() {
         newTut['title'] = tempTitle;
         setTutorial(newTut)
         setEditing(false)
+        refetch()
       });
     } catch (error) {
       console.error('Edit failed:', error);

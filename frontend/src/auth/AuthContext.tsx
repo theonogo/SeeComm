@@ -4,7 +4,9 @@ import { authService } from './AuthService';
 
 interface AuthData {
   is_authenticated: boolean;
-  [key: string]: any;
+  id: string,
+  username: string,
+  email: string
 }
 
 interface AuthContextType {

@@ -1,15 +1,13 @@
-import { useEffect, useState } from 'react'
-import api from '../api'
+import { useEffect } from 'react'
 import { Separator } from '@/components/ui/separator'
 import TutorialList from '@/components/TutorialList'
+import { useTutorialsContext } from "@/utils/TutorialsContext";
+
 
 export default function Home() {
-  const [tutorials, setTutorials] = useState<Array<{ id: string, title: string, created_at: string }>>([])
+  const { tutorials, refetch } = useTutorialsContext();
   useEffect(() => {
-      api.get('/tutorials/')
-      .then((res) => {
-          setTutorials(res.data)
-      })
+    refetch()
   }, [])
 
 
