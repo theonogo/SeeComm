@@ -20,11 +20,12 @@ export default function UploadForm() {
 
   async function handleSubmit(e : React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
+    setError('')
     setLoading(true)
 
     if (!file || !vidURL) {
       setError('Please provide both a JSON file and a vidURL.');
+      setLoading(false);
       return;
     }
 
@@ -48,10 +49,9 @@ export default function UploadForm() {
       } else {
         setError('Upload failed')
       }
+      setLoading(false);
       console.error('Upload failed:', error);
     }
-
-    setLoading(true);
   };
 
   function handleReset(){

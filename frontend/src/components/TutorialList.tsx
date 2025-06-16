@@ -28,7 +28,7 @@ export default function TutorialList({ tutorials } : { tutorials: Tutorial[]}){
 function TutorialItem({ tutorial } : { tutorial: Tutorial}) {
   return (
     <li className="w-full">
-      <NavLink to={`/tutorial/${tutorial.id}`} className="block mx-auto text-lg text-foreground border-b-2 border-border p-2 hover:bg-muted">
+      <NavLink to={`/tutorial/${tutorial.id}/`} className="block mx-auto text-lg text-foreground border-b-2 border-border p-2 hover:bg-muted">
         <div className="flex justify-between ml-1">
           <div className="max-w-lg overflow-hidden text-ellipsis whitespace-nowrap">
             {tutorial.title}

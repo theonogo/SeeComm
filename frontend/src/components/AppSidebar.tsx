@@ -50,7 +50,7 @@ export function AppSidebar() {
 
   useEffect(() => {
     refetch()
-  }, [])
+  })
 
 
   const { theme, setTheme } = useTheme()
