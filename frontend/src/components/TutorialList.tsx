@@ -13,7 +13,7 @@ export default function TutorialList({ tutorials } : { tutorials: Array<{ id: st
         ))}
         <li className="w-full">
           <NavLink to={`/upload/`} className={`flex mx-auto font-semibold border-t border-border bg-violet-200 hover:bg-violet-300 dark:bg-violet-950
-                                                rounded-b-sm dark:hover:bg-violet-900 text-primary/80 justify-center p-1.5`}>
+                                                rounded-b-sm dark:hover:bg-violet-900 text-foreground/80 justify-center p-1.5`}>
             <div className="flex gap-2">
               Upload New Tutorial
               <Plus className="h-7 w-7 text-muted-foreground self-end" />
@@ -28,7 +28,7 @@ export default function TutorialList({ tutorials } : { tutorials: Array<{ id: st
 function TutorialItem({ tutorial } : { tutorial: { id: string, title: string, created_at: string } }) {
   return (
     <li className="w-full">
-      <NavLink to={`/tutorial/${tutorial.id}`} className="block mx-auto text-lg text-primary border-b-2 border-border p-2 hover:bg-muted">
+      <NavLink to={`/tutorial/${tutorial.id}`} className="block mx-auto text-lg text-foreground border-b-2 border-border p-2 hover:bg-muted">
         <div className="flex justify-between ml-1">
           <div className="max-w-lg overflow-hidden text-ellipsis whitespace-nowrap">
             {tutorial.title}

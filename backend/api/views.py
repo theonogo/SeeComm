@@ -82,8 +82,9 @@ class TutorialListCreateView(APIView):
         system_instruction = """
         This is a transcript from a support call. 
         Extract relevant steps from the transcript and generate a clear step-by-step tutorial summarizing how the issue was resolved or handled. 
-        Include steps only when meaningful (avoid trivial dialogue). 
-        If useful for a step, include a start and end second where a video snippet would help, do this sparingly (don't include it in the step body, just put it in clip json).
+        Include steps only when meaningful (avoid trivial dialogue). Give clear step titles and detailed explanations.
+        If useful for a step, include a start and end second where a video snippet would help. Don't do this for every single step, only if helpful. 
+        (don't include clip times in the step body, just put it in clip json).
         Return the tutorial in JSON format
         """
 

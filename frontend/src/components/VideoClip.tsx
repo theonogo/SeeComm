@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+// import { useEffect, useRef, useState } from "react";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function VideoClip({vidURL, clip_start, clip_end} : {vidURL: string, clip_start: number, clip_end: number}) {
 
 //// Google drive doesnt actually allow to set an end to a clip like youtube does.
