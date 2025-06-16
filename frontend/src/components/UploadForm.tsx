@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { useNavigate } from 'react-router-dom';
 
-import { Facebook, Loader2Icon } from "lucide-react"
+import { Loader2Icon } from "lucide-react"
 import { AxiosError } from 'axios';
 
 export default function UploadForm() {
@@ -38,8 +38,6 @@ export default function UploadForm() {
       });
       setError('')
       setLoading(false);
-
-      console.log('Upload successful:', response.data);
 
       navigate(`/tutorial/${response.data.id}`)
     } catch (error) {
@@ -93,7 +91,7 @@ export default function UploadForm() {
         </Button>
         }
         
-        <Button type="reset" variant={"secondary"} onClick={() => handleReset()}>
+        <Button type="reset" variant={"outline"} onClick={() => handleReset()}>
           Cancel
         </Button>
         <span className='block self-center text-destructive font-semibold'>{error}</span>

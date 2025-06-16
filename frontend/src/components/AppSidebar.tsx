@@ -50,14 +50,12 @@ export function AppSidebar() {
   useEffect(() => {
     api.get('/tutorials/')
       .then((res) => {
-        console.log(res)
         setTutorials(res.data)
       })
   }, [])
 
 
   const { theme, setTheme } = useTheme()
-  console.log(theme)
 
   return (
     <Sidebar>

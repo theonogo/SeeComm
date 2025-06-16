@@ -12,5 +12,5 @@ export type Tutorial = {
 export type Step = {
     title: string,
     body: string,
-    clip: {start: number, end: number}
+    clip: {start: number, end: number} | null
 }

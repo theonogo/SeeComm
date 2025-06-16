@@ -168,10 +168,10 @@ class TutorialDetailView(APIView):
             return Response({'detail': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
 
         update_data = {}
-        if request.data['title'] is not None:
+        if request.data.get('title') is not None:
             update_data['title'] = request.data['title']
-        elif request.data['body'] is not None:
-            update_data['body'] = request.data['body']
+        elif request.data.get('body') is not None:
+            update_data['body'] = json.loads(request.data['body'])
         else:
             return Response({'detail': 'You must specify the title or body to update'}, status=status.HTTP_400_BAD_REQUEST)
 

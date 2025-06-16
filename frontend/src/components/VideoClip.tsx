@@ -23,7 +23,7 @@ export default function VideoClip({vidURL, clip_start, clip_end} : {vidURL: stri
     //   key={key}
     //   ref={iframeRef}
       src={iframeSrc}
-      className="w-full aspect-video mt-4 mb-2"
+      className="w-full aspect-video mt-6 mb-2"
     ></iframe>
   );
 }

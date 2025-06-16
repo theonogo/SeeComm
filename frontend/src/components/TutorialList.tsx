@@ -3,7 +3,6 @@ import { ChevronRight, Plus } from "lucide-react"
 
 
 export default function TutorialList({ tutorials } : { tutorials: Array<{ id: string, title: string, created_at: string }> }) {
-  console.log(tutorials)
   
   return (
     <div className=" py-4 mx-auto w-full">
